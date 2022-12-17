@@ -68,6 +68,15 @@ require('packer').startup(function(use)
     'nvim-treesitter/nvim-treesitter-textobjects',
     after = 'nvim-treesitter',
   }
+  
+  -- terminal manager
+  use {
+    's1n7ax/nvim-terminal',
+    config = function()
+        vim.o.hidden = true
+        require('nvim-terminal').setup()
+    end,
+  }
 
   -- Git related plugins
   use 'tpope/vim-fugitive'
@@ -170,6 +179,25 @@ vim.o.completeopt = 'menuone,noselect'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- control s for save support
+vim.cmd [[
+  noremap <silent> <C-S> :update<CR>
+  vnoremap <silent> <C-S> <C-C>:update<CR>
+  inoremap <silent> <C-S> <C-O>:update<CR>
+]]
+
+-- Bind the "u" command to the "Control-z" key press in normal mode
+vim.keymap.set("n", "<C-z>", "u", { noremap = true })
+
+-- Bind the "u" command to the "Control-z" key press in insert mode
+vim.keymap.set("i", "<C-z>", "<C-\\><C-o>u", { noremap = true })
+
+-- Bind the "/" command to the "Control-f" key press in normal mode
+vim.keymap.set("n", "<C-f>", "/", { noremap = true })
+
+-- Bind the "/" command to the "Control-f" key press in insert mode
+vim.keymap.set("i", "<C-f>", "<C-\\><C-o>/", { noremap = true })
+
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
@@ -259,7 +287,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'help' },
+  ensure_installed = { 'c', 'cpp', 'lua', 'rust', 'typescript', 'help' },
 
   highlight = { enable = true },
   indent = { enable = true },
@@ -378,7 +406,7 @@ require('mason').setup()
 
 -- Enable the following language servers
 -- Feel free to add/remove any LSPs that you want here. They will automatically be installed
-local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver', 'sumneko_lua', 'gopls' }
+local servers = { 'clangd', 'tsserver', 'sumneko_lua'  }
 
 -- Ensure the servers above are installed
 require('mason-lspconfig').setup {
