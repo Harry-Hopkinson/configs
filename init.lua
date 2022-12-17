@@ -78,6 +78,21 @@ require('packer').startup(function(use)
     end,
   }
 
+  -- Github Copilot
+  use 'junegunn/github-co-pilot'
+  vim.g.copilot_filetypes = {
+    ["*"] = false,
+    ["javascript"] = true,
+    ["typescript"] = true,
+    ["lua"] = false,
+    ["rust"] = true,
+    ["c"] = true,
+    ["c#"] = true,
+    ["c++"] = true,
+    ["go"] = true,
+    ["python"] = true,
+  }
+
   -- Git related plugins
   use 'tpope/vim-fugitive'
   use 'tpope/vim-rhubarb'
@@ -185,6 +200,11 @@ vim.cmd [[
   vnoremap <silent> <C-S> <C-C>:update<CR>
   inoremap <silent> <C-S> <C-O>:update<CR>
 ]]
+
+vim.api.nvim_set_keymap('n', '<C-/>', ':\'<,\'>s/^/--<CR>', {silent = true})
+
+-- control p to open files
+vim.keymap.set("n", '<C-p>', ':Telescope find_files<cr>', { noremap = true })
 
 -- Bind the "u" command to the "Control-z" key press in normal mode
 vim.keymap.set("n", "<C-z>", "u", { noremap = true })
