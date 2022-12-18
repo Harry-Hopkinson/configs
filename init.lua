@@ -32,7 +32,7 @@ require('packer').startup(function(use)
 
   -- empty setup using defaults
   require("nvim-tree").setup()
-
+  
   -- OR setup with some options
   require("nvim-tree").setup({
     sort_by = "case_sensitive",
@@ -80,18 +80,7 @@ require('packer').startup(function(use)
 
   -- Github Copilot
   use 'junegunn/github-co-pilot'
-  vim.g.copilot_filetypes = {
-    ["*"] = false,
-    ["javascript"] = true,
-    ["typescript"] = true,
-    ["lua"] = false,
-    ["rust"] = true,
-    ["c"] = true,
-    ["c#"] = true,
-    ["c++"] = true,
-    ["go"] = true,
-    ["python"] = true,
-  }
+  vim.g.copilot_assume_mapped = true
 
   -- Git related plugins
   use 'tpope/vim-fugitive'
@@ -168,6 +157,9 @@ vim.o.mouse = 'a'
 -- Enable break indent
 vim.o.breakindent = true
 
+-- Relative line numbers
+vim.o.relativenumber = true
+
 -- Save undo history
 vim.o.undofile = true
 
@@ -199,6 +191,19 @@ vim.cmd [[
   noremap <silent> <C-S> :update<CR>
   vnoremap <silent> <C-S> <C-C>:update<CR>
   inoremap <silent> <C-S> <C-O>:update<CR>
+]]
+
+local function input(prompt)
+  return vim.fn.input(prompt)
+end
+
+local function expand(s)
+  return vim.fn.expand(s)
+end
+
+-- control n create new file
+vim.cmd [[
+  noremap <silent> <C-N> :edit <C-r>=expand("%:p:h") . '/' . input("Enter file name: ")<CR>
 ]]
 
 vim.api.nvim_set_keymap('n', '<C-/>', ':\'<,\'>s/^/--<CR>', {silent = true})
@@ -280,6 +285,7 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
+    file_ignore_patterns = { 'node_modules', '.git' },
   },
 }
 
