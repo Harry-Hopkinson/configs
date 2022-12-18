@@ -5,6 +5,7 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   is_bootstrap = true
   vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
   vim.cmd [[packadd packer.nvim]]
+
 end
 
 require('packer').startup(function(use)
@@ -22,7 +23,6 @@ require('packer').startup(function(use)
       'j-hui/fidget.nvim',
     },
   }
-  
   -- disable netrw at the very start of your init.lua (strongly advised)
   vim.g.loaded_netrw = 1
   vim.g.loaded_netrwPlugin = 1
@@ -32,7 +32,6 @@ require('packer').startup(function(use)
 
   -- empty setup using defaults
   require("nvim-tree").setup()
-  
   -- OR setup with some options
   require("nvim-tree").setup({
     sort_by = "case_sensitive",
@@ -63,23 +62,13 @@ require('packer').startup(function(use)
       pcall(require('nvim-treesitter.install').update { with_sync = true })
     end,
   }
-
+ 
   use { -- Additional text objects via treesitter
     'nvim-treesitter/nvim-treesitter-textobjects',
     after = 'nvim-treesitter',
   }
-  
-  -- terminal manager
-  use {
-    's1n7ax/nvim-terminal',
-    config = function()
-        vim.o.hidden = true
-        require('nvim-terminal').setup()
-    end,
-  }
 
   -- Github Copilot
-  use 'junegunn/github-co-pilot'
   vim.g.copilot_assume_mapped = true
 
   -- Git related plugins
@@ -204,6 +193,27 @@ end
 -- control n create new file
 vim.cmd [[
   noremap <silent> <C-N> :edit <C-r>=expand("%:p:h") . '/' . input("Enter file name: ")<CR>
+]]
+
+-- yank to system clipboard
+--
+
+vim.api.nvim_set_option("clipboard","unnamed")
+
+vim.cmd [[
+  noremap <silent> <leader>y "+y
+  noremap <silent> <leader>Y "+yy
+  noremap <silent> <leader>p "+p
+  noremap <silent> <leader>P "+P
+]]
+
+-- paste from system clipboard
+--
+vim.cmd[[
+  nnoremap <silent> <leader>p "+p
+  nnoremap <silent> <leader>P "+P
+  vnoremap <silent> <leader>p "+p
+  vnoremap <silent> <leader>P "+P
 ]]
 
 vim.api.nvim_set_keymap('n', '<C-/>', ':\'<,\'>s/^/--<CR>', {silent = true})
