@@ -1,4 +1,4 @@
 # nvim-configs
 My Neovim Configurations for Arch Linux.
 
-Place in /home/harry/.config/nvim
+Place in /home/user/.config/nvim
