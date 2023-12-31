@@ -1,4 +1,4 @@
 # nvim-configs
-My Neovim Configurations for Windows.
+My Neovim Configurations for Arch Linux.
 
-Place in \AppData\Local\nvim
+Place in /home/harry/.config/nvim
