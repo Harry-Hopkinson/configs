@@ -12,3 +12,8 @@ Sync packages (update them with)
 ```bash
 :PackerSync
 ```
+
+Install Language Servers with
+```bash
+:Mason
+```
