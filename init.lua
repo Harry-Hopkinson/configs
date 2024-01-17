@@ -51,20 +51,19 @@ require('packer').startup(function(use)
   use 'tpope/vim-rhubarb'
   use 'lewis6991/gitsigns.nvim'
 
-  -- Tabs for neovim
-  -- use {'romgrk/barbar.nvim', wants = 'nvim-web-devicons'}
-
   use 'morhetz/gruvbox' -- Theme inspired by Gruvbox
   use 'nvim-lualine/lualine.nvim' -- Fancier statusline
   use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
   use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
   use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
 
-  -- Fuzzy Finder (files, lsp, etc)
+  use "nvim-telescope/telescope-live-grep-args.nvim" 
+
   use {
     'nvim-telescope/telescope.nvim', tag = '0.1.5',
     requires = { {'nvim-lua/plenary.nvim'} }
   }
+
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
@@ -167,8 +166,8 @@ vim.cmd [[
 -- yank to system clipboard
 --
 
-vim.api.nvim_set_option("clipboard","unnamed")
-
+-- vim.api.nvim_set_option("clipboard","unnamed")
+vim.opt.clipboard = "unnamedplus"
 vim.cmd [[
   noremap <silent> <leader>y "+y
   noremap <silent> <leader>Y "+yy
@@ -190,14 +189,14 @@ vim.api.nvim_set_keymap('n', '<C-/>', ':\'<,\'>s/^/--<CR>', {silent = true})
 -- control p to open files
 vim.keymap.set("n", '<C-p>', ':Telescope find_files<cr>', { noremap = true })
 
+-- control f to search files
+vim.keymap.set("n", '<C-f>', ':Telescope live_grep<cr>', { noremap = true })
+
 -- Bind the "u" command to the "Control-z" key press in normal mode
 vim.keymap.set("n", "<C-z>", "u", { noremap = true })
 
 -- Bind the "u" command to the "Control-z" key press in insert mode
 vim.keymap.set("i", "<C-z>", "<C-\\><C-o>u", { noremap = true })
-
--- Bind the "/" command to the "Control-f" key press in normal mode
-vim.keymap.set("n", "<C-f>", "/", { noremap = true })
 
 -- Bind the "/" command to the "Control-f" key press in insert mode
 vim.keymap.set("i", "<C-f>", "<C-\\><C-o>/", { noremap = true })
@@ -252,8 +251,6 @@ require('gitsigns').setup {
   },
 }
 
--- [[ Configure Telescope ]]
--- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
     mappings = {
@@ -262,29 +259,10 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
-    file_ignore_patterns = { 'node_modules', '.git' },
+    file_ignore_patterns = { 'node_modules', '.git', '.exe', 'build', 'data', 'resources', 'distribution', '.png', 'cmake'
+    },
   },
 }
-
--- Enable telescope fzf native, if installed
-pcall(require('telescope').load_extension, 'fzf')
-
--- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
-  })
-end, { desc = '[/] Fuzzily search in current buffer]' })
-
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -374,11 +352,8 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
   nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
@@ -407,23 +382,24 @@ require('mason').setup()
 
 -- Enable the following language servers
 -- Feel free to add/remove any LSPs that you want here. They will automatically be installed
--- local servers = { '' }
+local servers = { 'clangd' }
+-- local servers = { 'lua_ls' }
 
 -- Ensure the servers above are installed
 require('mason-lspconfig').setup {
-  -- ensure_installed = servers,
+  ensure_installed = servers,
 }
 
 -- nvim-cmp supports additional completion capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
--- for _, lsp in ipairs(servers) do
-  -- require('lspconfig')[lsp].setup {
-    -- on_attach = on_attach,
-    -- capabilities = capabilities,
-  -- }
--- end
+for _, lsp in ipairs(servers) do
+  require('lspconfig')[lsp].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+  }
+end
 
 -- Turn on lsp status information
 -- require('fidget').setup()
