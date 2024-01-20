@@ -5,12 +5,7 @@ Place in /home/user/.config/nvim
 
 Install packages with
 ```bash
-:PackerInstall
-```
-
-Sync packages (update them with)
-```bash
-:PackerSync
+:Lazy
 ```
 
 Install Language Servers with
