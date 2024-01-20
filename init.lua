@@ -1,104 +1,106 @@
--- Install packer
-local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
-local is_bootstrap = false
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  is_bootstrap = true
-  vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
-  vim.cmd [[packadd packer.nvim]]
-
+-- Install lazy.vim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
 end
+vim.opt.rtp:prepend(lazypath)
 
-require('packer').startup(function(use)
-  -- Package manager
-  use 'wbthomason/packer.nvim'
-  use { -- LSP Configuration & Plugins
+-- disable netrw at the very start of your init.lua (strongly advised)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+-- set termguicolors to enable highlight groups
+vim.opt.termguicolors = true
+
+local plugins = {
+  { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',       
-    requires = {
+    dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
       'j-hui/fidget.nvim',
-    },
-  }
-  -- disable netrw at the very start of your init.lua (strongly advised)
-  vim.g.loaded_netrw = 1
-  vim.g.loaded_netrwPlugin = 1
+    }
+  },
 
-  -- set termguicolors to enable highlight groups
-  vim.opt.termguicolors = true
-
-  use { -- Autocompletion
+  { -- Autocompletion
     'hrsh7th/nvim-cmp',
-    requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
-  }
+    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
+  },
 
-  use { -- Highlight, edit, and navigate code
+  { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    run = function()
-      pcall(require('nvim-treesitter.install').update { with_sync = true })
+    config = function()
+      pcall(require('nvim-treesitter.install').update{ with_sync = true })
     end,
-  }
+  },
  
-  use { -- Additional text objects via treesitter
+  { -- Additional text objects via treesitter
     'nvim-treesitter/nvim-treesitter-textobjects',
-    after = 'nvim-treesitter',
-  }
+  },
 
   -- Git related plugins
-  use 'tpope/vim-fugitive'
-  use 'tpope/vim-rhubarb'
-  use 'lewis6991/gitsigns.nvim'
+  'tpope/vim-fugitive',
+  'tpope/vim-rhubarb',
+  'lewis6991/gitsigns.nvim',
 
-  use 'morhetz/gruvbox' -- Theme inspired by Gruvbox
-  use 'nvim-lualine/lualine.nvim' -- Fancier statusline
-  use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
+  -- Github Copilot
+  'zbirenbaum/copilot.lua',
+  
 
-  use "nvim-telescope/telescope-live-grep-args.nvim" 
+  {
+    'morhetz/gruvbox', -- Theme inspired by Gruvbox
+    lazy = false,
+    priority=1000,
+    config = function()
+    -- Set colorscheme
+      vim.o.termguicolors = true
+      vim.o.background = "dark" -- or "light" for light mode
+      vim.cmd([[colorscheme gruvbox]])
+    end,
+  },
 
-  use {
+  {'romgrk/barbar.nvim',
+    dependencies = {
+      'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status
+      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+    },
+    init = function() vim.g.barbar_auto_setup = false end,
+    opts = {
+      -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+      -- animation = true,
+      -- insert_at_start = true,
+      -- …etc.
+    },
+    version = '^1.0.0', -- optional: only update when a new 1.x version is released
+  },
+
+  'nvim-lualine/lualine.nvim', -- Fancier statusline
+  'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
+  'numToStr/Comment.nvim', -- "gc" to comment visual regions/lines
+  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+
+  "nvim-telescope/telescope-live-grep-args.nvim", 
+
+  {
     'nvim-telescope/telescope.nvim', tag = '0.1.5',
-    requires = { {'nvim-lua/plenary.nvim'} }
-  }
+    dependencies = { {'nvim-lua/plenary.nvim'} }
+  },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
+  { 'nvim-telescope/telescope-fzf-native.nvim', 
+  },
+}
 
-  -- Add custom plugins to packer from /nvim/lua/custom/plugins.lua
-  local has_plugins, plugins = pcall(require, 'custom.plugins')
-  if has_plugins then
-    plugins(use)
-  end
-
-  if is_bootstrap then
-    require('packer').sync()
-  end
-end)
-
--- When we are bootstrapping a configuration, it doesn't
--- make sense to execute the rest of the init.lua.
---
--- You'll need to restart nvim, and then it will work.
-if is_bootstrap then
-  print '=================================='
-  print '    Plugins are being installed'
-  print '    Wait until Packer completes,'
-  print '       then restart nvim'
-  print '=================================='
-  return
-end
-
--- Automatically source and re-compile packer whenever you save this init.lua
-local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
-vim.api.nvim_create_autocmd('BufWritePost', {
-  command = 'source <afile> | PackerCompile',
-  group = packer_group,
-  pattern = vim.fn.expand '$MYVIMRC',
-})
-
+require("lazy").setup(plugins, opts)
 -- [[ Setting options ]]
 -- See `:help vim.o`
 
@@ -127,11 +129,6 @@ vim.o.smartcase = true
 -- Decrease update time
 vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
-
--- Set colorscheme
-vim.o.termguicolors = true
-vim.o.background = "dark" -- or "light" for light mode
-vim.cmd([[colorscheme gruvbox]])
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -218,6 +215,50 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
   group = highlight_group,
   pattern = '*',
+})
+
+require('copilot').setup({
+  panel = {
+    enabled = true,
+    auto_refresh = true,
+    keymap = {
+      jump_prev = "[[",
+      jump_next = "]]",
+      accept = "<CR>",
+      refresh = "gr",
+      open = "<M-CR>"
+    },
+    layout = {
+      position = "bottom", -- | top | left | right
+      ratio = 0.4
+    },
+  },
+  suggestion = {
+    enabled = true,
+    auto_trigger = false,
+    debounce = 75,
+    keymap = {
+      accept = "<M-l>",
+      accept_word = false,
+      accept_line = false,
+      next = "<M-]>",
+      prev = "<M-[>",
+      dismiss = "<C-]>",
+    },
+  },
+  filetypes = {
+    yaml = false,
+    markdown = false,
+    help = false,
+    gitcommit = false,
+    gitrebase = false,
+    hgcommit = false,
+    svn = false,
+    cvs = false,
+    ["."] = false,
+  },
+  copilot_node_command = 'node', -- Node.js version must be > 18.x
+  server_opts_overrides = {},
 })
 
 -- Set lualine as statusline
