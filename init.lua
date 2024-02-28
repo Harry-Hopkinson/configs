@@ -15,10 +15,9 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
-
 local plugins = {
   { -- LSP Configuration & Plugins
-    'neovim/nvim-lspconfig',       
+    'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       'williamboman/mason.nvim',
@@ -36,9 +35,6 @@ local plugins = {
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    config = function()
-      pcall(require('nvim-treesitter.install').update { with_sync = true })
-    end,
   },
  
   'nvim-treesitter/nvim-treesitter-textobjects',
@@ -47,6 +43,9 @@ local plugins = {
  'tpope/vim-fugitive',
  'tpope/vim-rhubarb',
  'lewis6991/gitsigns.nvim',
+
+ -- Autoclose Brackets
+ 'm4xshen/autoclose.nvim',
 
   { 
     'morhetz/gruvbox', -- Theme inspired by Gruvbox
@@ -96,6 +95,7 @@ require("lazy").setup(plugins, opts)
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
+--
 
 -- Set highlight on search
 vim.o.hlsearch = false
@@ -240,6 +240,8 @@ require('gitsigns').setup {
     changedelete = { text = '~' },
   },
 }
+
+require("autoclose").setup()
 
 require('telescope').setup {
   defaults = {
