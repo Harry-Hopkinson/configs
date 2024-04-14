@@ -44,6 +44,10 @@ local plugins = {
  'tpope/vim-rhubarb',
  'lewis6991/gitsigns.nvim',
 
+ 'github/copilot.vim',
+
+ 'CRAG666/betterTerm.nvim',
+
  -- Autoclose Brackets
  'm4xshen/autoclose.nvim',
 
@@ -88,7 +92,7 @@ local plugins = {
   },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-  'nvim-telescope/telescope-fzf-native.nvim'
+  'nvim-telescope/telescope-fzf-native.nvim',
 }
 
 require("lazy").setup(plugins, opts)
@@ -154,9 +158,6 @@ vim.cmd [[
 ]]
 
 -- yank to system clipboard
---
-
--- vim.api.nvim_set_option("clipboard","unnamed")
 vim.opt.clipboard = "unnamedplus"
 vim.cmd [[
   noremap <silent> <leader>y "+y
@@ -173,6 +174,20 @@ vim.cmd[[
   vnoremap <silent> <leader>p "+p
   vnoremap <silent> <leader>P "+P
 ]]
+
+-- Better Terminal
+local betterTerm = require('betterTerm')
+-- vim.keymap.set("n", "<C-'>", betterTerm.open, { desc = "Open terminal"})
+-- vim.keymap.set({"n"}, "<leader>tt", betterTerm.select, { desc = "Select terminal"})
+local current = 2
+vim.keymap.set(
+    {"n"}, "<C-t>",
+    function()
+        betterTerm.open(current)
+        current = current + 1
+    end,
+    { desc = "New terminal"}
+)
 
 vim.api.nvim_set_keymap('n', '<C-/>', ':\'<,\'>s/^/--<CR>', {silent = true})
 
@@ -223,6 +238,9 @@ require('lualine').setup {
 
 -- Enable Comment.nvim
 require('Comment').setup()
+
+-- BetterTerm
+require('betterTerm').setup()
 
 -- Enable `lukas-reineke/indent-blankline.nvim`
 -- See `:help indent_blankline.txt`
