@@ -258,6 +258,8 @@ require('gitsigns').setup {
   },
 }
 
+require("autoclose").setup()
+
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
@@ -267,6 +269,8 @@ require('telescope').setup {
         ['<C-u>'] = false,
         ['<C-d>'] = false,
       },
+    },
+    file_ignore_patterns = { 'node_modules', '.git', '.exe', 'build', 'data', 'resources', 'distribution', '.png', 'cmake'
     },
   },
 }
