@@ -78,7 +78,8 @@ local plugins = {
     version = '^1.0.0', -- optional: only update when a new 1.x version is released
   },
   
- 'nvim-lualine/lualine.nvim', -- Fancier statusline
+ 'nvim-lualine/lualine.nvim',
+
  'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
  'numToStr/Comment.nvim', -- "gc" to comment visual regions/lines
  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
@@ -226,14 +227,25 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- Set lualine as statusline
 -- See `:help lualine.txt`
+-- Set lualine as statusline
 require('lualine').setup {
   options = {
-    icons_enabled = false,
+    icons_enabled = true,
     theme = 'onedark',
     component_separators = '|',
     section_separators = '',
   },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
 }
+
+
 
 -- Enable Comment.nvim
 require('Comment').setup()
@@ -390,16 +402,6 @@ capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 local lspconfig = require('lspconfig')
 lspconfig.tsserver.setup { on_attach = on_attach, capabilities = capabilities }
 lspconfig.clangd.setup { on_attach = on_attach, capabilities = capabilities }
-
--- Automatically show hover information
-vim.api.nvim_create_autocmd("CursorHold", {
-  callback = function()
-    vim.lsp.buf.hover()
-  end,
-})
-
--- Adjust update time for CursorHold
-vim.o.updatetime = 300
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
