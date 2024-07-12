@@ -1,13 +1,13 @@
+[env]
+TERM = "xterm-256color"
+
+# Colors (Gruvbox dark)
 [colors]
 draw_bold_text_with_bright_colors = true
 
-# Colors (Gruvbox dark)
-
 # Default colors
 [colors.primary]
-# hard contrast background = = '#1d2021'
 background = '#282828'
-# soft contrast background = = '#32302f'
 foreground = '#ebdbb2'
 
 # Normal colors
@@ -36,9 +36,6 @@ white   = '#ebdbb2'
 background = "#3e4451"
 text = "CellForeground"
 
-[env]
-TERM = "xterm-256color"
-
 [font]
 size = 12.0
 
@@ -65,7 +62,7 @@ y = 1
 [[keyboard.bindings]]
 action = "Paste"
 key = "V"
-mods = "Control|Shift"
+mods = "Control"
 
 [[keyboard.bindings]]
 action = "Copy"
@@ -147,12 +144,11 @@ mode = "~Alt"
 mods = "Shift"
 
 [scrolling]
-history = 5000
+history = 1000
 
 [window]
 dynamic_padding = false
 opacity = 1.0
-title = "Alacritty"
 
 [window.class]
 general = "Alacritty"
